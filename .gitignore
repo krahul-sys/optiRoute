@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# compiled engine
+backend/engine/build/
+*.o
+*.exe
+*.out
+
+# frontend build
+frontend/dist/
+*.tsbuildinfo
+
+# env / secrets
+.env
+*.log
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,66 @@
+# OptiRoute & CoreDB Command Center
+# Three isolated containers on a private bridge network:
+#   frontend   -> React UI served by nginx, proxies /api to backend
+#   backend    -> FastAPI middleware + compiled C++ DAA engine binary
+#   oracle-db  -> Oracle XE (21c) with automated schema bootstrapping
+
+networks:
+  optiroute-net:
+    driver: bridge
+
+volumes:
+  oracle-data:
+    driver: local
+
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: optiroute-oracle
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-OptiRoute123}
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      # Automated schema bootstrapping: scripts run in lexical order on first boot.
+      - ./db/init:/container-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 20s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    networks:
+      - optiroute-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: optiroute-backend
+    environment:
+      DB_DSN: oracle-db:1521/XEPDB1
+      DB_USER: ${DB_USER:-OPTIROUTE}
+      DB_PASSWORD: ${DB_PASSWORD:-optiroute}
+      ENGINE_BIN: /app/engine/engine
+      ENGINE_TIMEOUT_MS: "5000"
+      LOG_LEVEL: info
+    ports:
+      - "8000:8000"
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+    networks:
+      - optiroute-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: optiroute-frontend
+    ports:
+      - "8090:80"
+    depends_on:
+      - backend
+    networks:
+      - optiroute-net

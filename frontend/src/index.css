@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-base-900 text-slate-200 antialiased;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.card {
+  @apply rounded-xl border border-base-600/60 bg-base-800/70 p-4 shadow-lg backdrop-blur;
+}
+
+.btn {
+  @apply rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40;
+}
+
+.btn-primary {
+  @apply btn bg-cyan-500/90 text-base-900 hover:bg-cyan-400;
+}
+
+.btn-ghost {
+  @apply btn border border-base-600 bg-base-700/50 text-slate-200 hover:bg-base-600/60;
+}
+
+.input {
+  @apply w-full rounded-lg border border-base-600 bg-base-900/80 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+}
